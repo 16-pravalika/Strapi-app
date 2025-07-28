@@ -13,7 +13,7 @@ variable "instance_type" {
 }
  
 variable "key_name" {
-  default     = "key"
+  default     = "key-pair"
   description = "Name of the EC2 key pair"
 }
 
