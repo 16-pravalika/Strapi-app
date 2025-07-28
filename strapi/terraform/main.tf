@@ -1,11 +1,11 @@
 provider "aws" {
-  region = var.aws_region
+  region = var.region
 }
 
 resource "aws_instance" "strapi" {
-  ami           = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 (Ohio region)
-  instance_type = "t3.micro"
-  key_name      = var.key_pair_name
+  ami           = var.ami # Amazon Linux 2 (Ohio region)
+  instance_type = var.instance_type
+  key_name      = var.key_name
   security_groups = [aws_security_group.strapi_sg.name]
 
   user_data = <<-EOF
@@ -39,7 +39,7 @@ resource "aws_instance" "strapi" {
               EOF
 
   tags = {
-    Name = "Strapi-Instance"
+    Name = "Strapi-Ins"
   }
 }
 
@@ -61,6 +61,14 @@ resource "aws_security_group" "strapi_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -69,20 +77,3 @@ resource "aws_security_group" "strapi_sg" {
   }
 }
 
-variable "aws_region" {
-  default = "us-east-2"
-}
-
-variable "key_pair_name" {
-  default     = "key"
-  description = "Name of the EC2 key pair"
-}
-
-variable "image_tag" {
-  description = "Docker image tag to deploy (e.g. latest or commit SHA)"
-  default     = "latest"
-}
-
-output "instance_public_ip" {
-  value = aws_instance.strapi.public_ip
-}

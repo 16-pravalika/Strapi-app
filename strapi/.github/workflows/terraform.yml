@@ -1,54 +1,33 @@
-name: CD - Deploy with Terraform
+name: Terraform Deploy to EC2
 
 on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Docker image tag to deploy'
+        description: 'Docker image tag to deploy (e.g., latest)'
         required: true
+        default: 'latest'
+
+env:
+  TF_VAR_image_tag: ${{ github.event.inputs.image_tag }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.5.0
 
       - name: Terraform Init
-        working-directory: ./terraform
         run: terraform init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-
-      - name: Terraform Plan
-        working-directory: ./terraform
-        run: terraform plan -var "image_tag=${{ github.event.inputs.image_tag }}" -var "key_pair_name=${{ secrets.AWS_KEY_PAIR_NAME }}"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Terraform Apply
-        working-directory: ./terraform
-        run: terraform apply -auto-approve -var "image_tag=${{ github.event.inputs.image_tag }}" -var "key_pair_name=${{ secrets.AWS_KEY_PAIR_NAME }}"
+        run: terraform apply -auto-approve
+
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-
-      - name: Get EC2 Public IP
-        working-directory: ./terraform
-        id: terraform_output
-        run: echo "PUBLIC_IP=$(terraform output -raw instance_public_ip)" >> $GITHUB_OUTPUT
-
-      - name: Verify Deployment
-        run: |
-          sleep 30 # Wait for instance to start
-          curl -f http://${{ steps.terraform_output.outputs.PUBLIC_IP }}:1337/admin || exit 1
