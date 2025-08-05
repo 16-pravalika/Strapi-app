@@ -31,10 +31,11 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/strapi:${{ steps.vars.outputs.tag }}
 
+      - name: Save image tag to file
+        run: echo "${{ steps.vars.outputs.tag }}" > tag.txt
+
       - name: Upload image tag as artifact
         uses: actions/upload-artifact@v4
         with:
           name: image-tag
-          path: |
-            tag.txt
-        run: echo "${{ steps.vars.outputs.tag }}" > tag.txt
+          path: tag.txt
