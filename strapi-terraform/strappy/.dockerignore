@@ -1,0 +1,28 @@
+# Node modules (will be installed fresh in image)
+node_modules
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build output (Strapi will build again inside container)
+build
+.cache
+
+# Local environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# OS & editor-related
+.DS_Store
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Dockerignore itself (optional)
+.dockerignore
