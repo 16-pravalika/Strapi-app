@@ -25,7 +25,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/strapi:${{ steps.vars.outputs.tag }} ./strappy
+          docker build -f strappy/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/strapi:${{ steps.vars.outputs.tag }} .
+
 
       - name: Push to Docker Hub
         run: |
