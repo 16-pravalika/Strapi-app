@@ -40,3 +40,14 @@ jobs:
         with:
           name: image-tag
           path: tag.txt
+
+      - name: Trigger Terraform CD Workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          event-type: trigger-cd
+          client-payload: |
+            {
+              "tag": "${{ steps.vars.outputs.tag }}"
+            }
